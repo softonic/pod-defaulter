@@ -3,7 +3,7 @@ package http
 import (
 	"encoding/json"
 	"errors"
-	"github.com/softonic/node-policy-webhook/pkg/admission"
+	"github.com/softonic/pod-defaulter/pkg/admission"
 	"io"
 	"k8s.io/api/admission/v1beta1"
 	"k8s.io/klog"

@@ -2,7 +2,7 @@
 {{/*
 Expand the name of the chart.
 */}}
-{{- define "node-policy-webhook.name" -}}
+{{- define "pod-defaulter.name" -}}
 {{- default .Chart.Name .Values.nameOverride | trunc 63 | trimSuffix "-" -}}
 {{- end -}}
 
@@ -11,7 +11,7 @@ Create a default fully qualified app name.
 We truncate at 63 chars because some Kubernetes name fields are limited to this (by the DNS naming spec).
 If release name contains chart name it will be used as a full name.
 */}}
-{{- define "node-policy-webhook.fullname" -}}
+{{- define "pod-defaulter.fullname" -}}
 {{- if .Values.fullnameOverride -}}
 {{- .Values.fullnameOverride | trunc 63 | trimSuffix "-" -}}
 {{- else -}}
@@ -27,16 +27,16 @@ If release name contains chart name it will be used as a full name.
 {{/*
 Create chart name and version as used by the chart label.
 */}}
-{{- define "node-policy-webhook.chart" -}}
+{{- define "pod-defaulter.chart" -}}
 {{- printf "%s-%s" .Chart.Name .Chart.Version | replace "+" "_" | trunc 63 | trimSuffix "-" -}}
 {{- end -}}
 
 {{/*
 Common labels
 */}}
-{{- define "node-policy-webhook.labels" -}}
-helm.sh/chart: {{ include "node-policy-webhook.chart" . }}
-{{ include "node-policy-webhook.selectorLabels" . }}
+{{- define "pod-defaulter.labels" -}}
+helm.sh/chart: {{ include "pod-defaulter.chart" . }}
+{{ include "pod-defaulter.selectorLabels" . }}
 {{- if .Chart.AppVersion }}
 app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
 {{- end }}
@@ -46,22 +46,22 @@ app.kubernetes.io/managed-by: {{ .Release.Service }}
 {{/*
 Selector labels
 */}}
-{{- define "node-policy-webhook.selectorLabels" -}}
-app.kubernetes.io/name: {{ include "node-policy-webhook.name" . }}
+{{- define "pod-defaulter.selectorLabels" -}}
+app.kubernetes.io/name: {{ include "pod-defaulter.name" . }}
 app.kubernetes.io/instance: {{ .Release.Name }}
 {{- end -}}
 
 {{/*
 Create the name of the service account to use
 */}}
-{{- define "node-policy-webhook.serviceAccountName" -}}
-{{ default (include "node-policy-webhook.fullname" .) .Values.serviceAccount.name }}
+{{- define "pod-defaulter.serviceAccountName" -}}
+{{ default (include "pod-defaulter.fullname" .) .Values.serviceAccount.name }}
 {{- end -}}
 
 {{/*
 Create the name of the service account to use
 */}}
-{{- define "node-policy-webhook.bindAddress" -}}
+{{- define "pod-defaulter.bindAddress" -}}
 {{- if .Values.bindAddress -}}
 {{- .Values.bindAddress | quote }}
 {{- else }}

@@ -2,14 +2,14 @@ FROM golang:1.14-buster AS build
 
 ENV GOBIN=$GOPATH/bin
 
-ADD . /src/node-policy-webhook
+ADD . /src/pod-defaulter
 
-WORKDIR /src/node-policy-webhook
+WORKDIR /src/pod-defaulter
 
 RUN make build
 
 FROM debian:buster-slim
 
-COPY --from=build /src/node-policy-webhook/node-policy-webhook /node-policy-webhook
+COPY --from=build /src/pod-defaulter/pod-defaulter /pod-defaulter
 
-ENTRYPOINT ["/node-policy-webhook"]
+ENTRYPOINT ["/pod-defaulter"]

@@ -3,7 +3,7 @@ package admission
 import (
 	"encoding/json"
 	"errors"
-	"github.com/softonic/node-policy-webhook/pkg/log"
+	"github.com/softonic/pod-defaulter/pkg/log"
 	"k8s.io/api/admission/v1beta1"
 	v1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/equality"
@@ -46,7 +46,6 @@ func (r *AdmissionReviewer) PerformAdmissionReview(admissionReview *v1beta1.Admi
 	// If we encountered changes, then synthesize and apply
 	// a patch.
 	patchBytes, err := duck.CreateBytePatch(pod, defaultedPod)
-
 
 	if err != nil {
 		admissionReview.Response = r.newAdmissionError(pod, err)

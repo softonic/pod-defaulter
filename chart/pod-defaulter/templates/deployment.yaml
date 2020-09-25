@@ -1,25 +1,25 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ include "node-policy-webhook.fullname" . }}
+  name: {{ include "pod-defaulter.fullname" . }}
   labels:
-    {{- include "node-policy-webhook.labels" . | nindent 4 }}
+    {{- include "pod-defaulter.labels" . | nindent 4 }}
 spec:
   replicas: {{ .Values.replicaCount }}
   selector:
     matchLabels:
-      {{- include "node-policy-webhook.selectorLabels" . | nindent 6 }}
+      {{- include "pod-defaulter.selectorLabels" . | nindent 6 }}
   template:
     metadata:
       labels:
-        app: node-policy-webhook
-        {{- include "node-policy-webhook.selectorLabels" . | nindent 8 }}
+        app: pod-defaulter
+        {{- include "pod-defaulter.selectorLabels" . | nindent 8 }}
     spec:
     {{- with .Values.imagePullSecrets }}
       imagePullSecrets:
         {{- toYaml . | nindent 8 }}
     {{- end }}
-      serviceAccountName: {{ include "node-policy-webhook.serviceAccountName" . }}
+      serviceAccountName: {{ include "pod-defaulter.serviceAccountName" . }}
       securityContext:
         {{- toYaml .Values.podSecurityContext | nindent 8 }}
       containers:
@@ -34,7 +34,7 @@ spec:
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           env:
             - name: BIND_ADDRESS
-              value: {{ include "node-policy-webhook.bindAddress" . | quote }}
+              value: {{ include "pod-defaulter.bindAddress" . | quote }}
           ports:
             - name: https
               containerPort: {{ .Values.bindPort }}
@@ -58,7 +58,7 @@ spec:
       volumes:
         - name: webhook-certs
           secret:
-            secretName: {{ include "node-policy-webhook.fullname" . }}
+            secretName: {{ include "pod-defaulter.fullname" . }}
       {{- with .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}

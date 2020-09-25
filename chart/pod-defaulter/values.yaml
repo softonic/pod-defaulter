@@ -1,11 +1,11 @@
-# Default values for node-policy-webhook.
+# Default values for pod-defaulter.
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
 
 replicaCount: 1
 
 image:
-  repository: softonic/node-policy-webhook
+  repository: softonic/pod-defaulter
   pullPolicy: IfNotPresent
   tag: 0.1.2
 
