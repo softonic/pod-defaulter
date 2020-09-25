@@ -3,13 +3,16 @@ package admission
 import (
 	"encoding/json"
 	"errors"
+
 	"github.com/softonic/pod-defaulter/pkg/log"
 	"k8s.io/api/admission/v1beta1"
 	v1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/equality"
-	v12 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/klog"
 	"knative.dev/pkg/apis/duck"
+
+	"fmt"
 )
 
 type AdmissionReviewer struct {
@@ -24,7 +27,32 @@ func NewPodDefaultValuesAdmissionReviewer(cm map[string]interface{}) *AdmissionR
 
 func parseConfigIntoTemplate(cm map[string]interface{}) *v1.PodTemplate {
 	// @TODO: convert from map to PodTemplate
-	return &v1.PodTemplate{}
+
+	dummyCm := make(map[string]interface{})
+
+	dummyCm = map[string]interface{}{
+		"annotations": map[string]string{
+			"cluster-autoscaler.kubernetes.io/safe-to-evict": "true",
+		},
+	}
+
+	fmt.Println(dummyCm)
+
+	PodTemplate := &v1.PodTemplate{
+		TypeMeta: metav1.TypeMeta{
+			Kind:       "Pod",
+			APIVersion: "v1",
+		},
+		ObjectMeta: metav1.ObjectMeta{
+			Annotations: map[string]string{
+				"cluster-autoscaler.kubernetes.io/safe-to-evict": "true",
+			},
+		},
+	}
+
+	fmt.Println(PodTemplate)
+
+	return PodTemplate
 }
 
 // PerformAdmissionReview : It generates the Adminission Review Response
@@ -56,7 +84,7 @@ func (r *AdmissionReviewer) PerformAdmissionReview(admissionReview *v1beta1.Admi
 	patchType := v1beta1.PatchTypeJSONPatch
 
 	admissionReview.Response = &v1beta1.AdmissionResponse{
-		Result: &v12.Status{
+		Result: &metav1.Status{
 			Status: "Success",
 		},
 		Patch:     patchBytes,
@@ -73,7 +101,7 @@ func (r *AdmissionReviewer) newAdmissionError(pod *v1.Pod, err error) *v1beta1.A
 		klog.Errorf("Failed admission review: %v", err)
 	}
 	return &v1beta1.AdmissionResponse{
-		Result: &v12.Status{
+		Result: &metav1.Status{
 			Message: err.Error(),
 			Status:  "Fail",
 		},
