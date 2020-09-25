@@ -1,0 +1,9 @@
+Release "node-policy-webhook" has been upgraded. Happy Helming!
+NAME: node-policy-webhook
+LAST DEPLOYED: Mon Jul 27 14:45:41 2020
+NAMESPACE: default
+STATUS: deployed
+REVISION: 2
+TEST SUITE: None
+NOTES:
+Node Policy Webhook released node-policy-webhook installed in Namespace default
