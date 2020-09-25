@@ -3,6 +3,10 @@ module github.com/softonic/pod-defaulter
 go 1.14
 
 require (
+	github.com/ghodss/yaml v1.0.0
+	github.com/imdario/mergo v0.3.9
+	github.com/mohae/deepcopy v0.0.0-20170929034955-c48cc78d4826
+	gopkg.in/yaml.v2 v2.3.0
 	k8s.io/api v0.18.8
 	k8s.io/apimachinery v0.18.8
 	k8s.io/autoscaler/vertical-pod-autoscaler v0.0.0-20200910092546-63259fb5dd89

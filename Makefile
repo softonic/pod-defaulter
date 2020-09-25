@@ -1,15 +1,15 @@
 BIN := pod-defaulter
 CRD_OPTIONS ?= "crd:trivialVersions=true"
 PKG := github.com/softonic/pod-defaulter
-VERSION ?= 0.0.0-dev
+VERSION ?= 0.0.10-dev
 ARCH ?= amd64
 APP ?= pod-defaulter
 NAMESPACE ?= pod-defaulter
 RELEASE_NAME ?= pod-defaulter
 KO_DOCKER_REPO = registry.softonic.io/pod-defaulter
-REPOSITORY ?= pod-defaulter
+REPOSITORY ?= softonic/$(BIN)
 
-IMAGE := $(BIN)
+IMAGE := softonic/$(BIN)
 
 BUILD_IMAGE ?= golang:1.14-buster
 

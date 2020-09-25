@@ -3,7 +3,7 @@ package admission
 import (
 	"encoding/json"
 	"errors"
-
+	"github.com/imdario/mergo"
 	"github.com/softonic/pod-defaulter/pkg/log"
 	"k8s.io/api/admission/v1beta1"
 	v1 "k8s.io/api/core/v1"
@@ -11,48 +11,16 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/klog"
 	"knative.dev/pkg/apis/duck"
-
-	"fmt"
 )
 
 type AdmissionReviewer struct {
 	defaultTemplate *v1.PodTemplate
 }
 
-func NewPodDefaultValuesAdmissionReviewer(cm map[string]interface{}) *AdmissionReviewer {
+func NewPodDefaultValuesAdmissionReviewer(cm *v1.PodTemplate) *AdmissionReviewer {
 	return &AdmissionReviewer{
-		defaultTemplate: parseConfigIntoTemplate(cm),
+		defaultTemplate: cm,
 	}
-}
-
-func parseConfigIntoTemplate(cm map[string]interface{}) *v1.PodTemplate {
-	// @TODO: convert from map to PodTemplate
-
-	dummyCm := make(map[string]interface{})
-
-	dummyCm = map[string]interface{}{
-		"annotations": map[string]string{
-			"cluster-autoscaler.kubernetes.io/safe-to-evict": "true",
-		},
-	}
-
-	fmt.Println(dummyCm)
-
-	PodTemplate := &v1.PodTemplate{
-		TypeMeta: metav1.TypeMeta{
-			Kind:       "Pod",
-			APIVersion: "v1",
-		},
-		ObjectMeta: metav1.ObjectMeta{
-			Annotations: map[string]string{
-				"cluster-autoscaler.kubernetes.io/safe-to-evict": "true",
-			},
-		},
-	}
-
-	fmt.Println(PodTemplate)
-
-	return PodTemplate
 }
 
 // PerformAdmissionReview : It generates the Adminission Review Response
@@ -131,6 +99,12 @@ func (r *AdmissionReviewer) getPod(admissionReview *v1beta1.AdmissionReview) (*v
 }
 
 func (r *AdmissionReviewer) defaultPodValues(pod *v1.Pod) interface{} {
-	//@TODO: check properties of r.defaultTemplate, if not in pod, apply
-	return &v1.Pod{}
+	klog.Infof("IN: %v", pod)
+	result := &v1.Pod{}
+	mergo.Merge(result, r.defaultTemplate, mergo.WithOverride)
+	klog.Infof("MERGE WITH: %v", r.defaultTemplate)
+	klog.Infof("MERGED (1): %v", result)
+	mergo.Merge(result, pod, mergo.WithOverride)
+	klog.Infof("OUT: %v", result)
+	return result
 }

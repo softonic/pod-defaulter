@@ -35,6 +35,12 @@ spec:
           env:
             - name: BIND_ADDRESS
               value: {{ include "pod-defaulter.bindAddress" . | quote }}
+            - name: CONFIGMAP_NAME
+              value: {{ include "pod-defaulter.fullname" . }}-config
+            - name: POD_NAMESPACE
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.namespace
           ports:
             - name: https
               containerPort: {{ .Values.bindPort }}

@@ -1,12 +1,21 @@
 package main
 
 import (
+	"context"
 	"crypto/tls"
 	"flag"
 	"fmt"
 	"github.com/softonic/pod-defaulter/pkg/admission"
 	h "github.com/softonic/pod-defaulter/pkg/http"
 	"github.com/softonic/pod-defaulter/pkg/version"
+
+	//This supports JSON tags
+	"github.com/ghodss/yaml"
+
+	v1 "k8s.io/api/core/v1"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/client-go/kubernetes"
+	"k8s.io/client-go/rest"
 	"k8s.io/klog"
 	"net/http"
 	"os"
@@ -24,9 +33,7 @@ const DEFAULT_BIND_ADDRESS = ":8443"
 var handler *h.HttpHandler
 
 func init() {
-	// Read ConfigMap
-	cm := make(map[string]interface{})
-	handler = getHttpHandler(cm)
+
 	klog.InitFlags(nil)
 }
 
@@ -42,6 +49,34 @@ func main() {
 	flag.StringVar(&params.privateKey, "tls-key", "bar", "a string var")
 
 	flag.Parse()
+
+	// Read ConfigMap
+	config, err := rest.InClusterConfig()
+	if err != nil {
+		panic(err.Error())
+	}
+	// creates the clientset
+	clientset, err := kubernetes.NewForConfig(config)
+	if err != nil {
+		panic(err.Error())
+	}
+
+	namespace := os.Getenv("POD_NAMESPACE")
+	cmName := os.Getenv("CONFIGMAP_NAME")
+
+	//@TODO: extract this to its own class
+	cm, err := clientset.CoreV1().ConfigMaps(namespace).Get(context.TODO(), cmName, metav1.GetOptions{})
+	if err != nil {
+		klog.Fatalf("Invalid config %s/%s : %v", namespace, cmName, err)
+	}
+	configPodTemplate := &v1.PodTemplate{}
+	err = yaml.Unmarshal([]byte(cm.Data["config"]), configPodTemplate)
+
+	if err != nil {
+		klog.Fatalf("Invalid config %v", err)
+	}
+	klog.Infof("Unserialized config: %v", configPodTemplate)
+	handler = getHttpHandler(configPodTemplate)
 
 	if params.version {
 		fmt.Println("Version:", version.Version)
@@ -91,10 +126,10 @@ func run(params *params) {
 	klog.Fatalf("Could not start server: %v", srv.ListenAndServeTLS(params.certificate, params.privateKey))
 }
 
-func getHttpHandler(cm map[string]interface{}) *h.HttpHandler {
+func getHttpHandler(cm *v1.PodTemplate) *h.HttpHandler {
 	return h.NewHttpHanlder(getPodDefaultValuesAdmissionReviewer(cm))
 }
 
-func getPodDefaultValuesAdmissionReviewer(cm map[string]interface{}) *admission.AdmissionReviewer {
+func getPodDefaultValuesAdmissionReviewer(cm *v1.PodTemplate) *admission.AdmissionReviewer {
 	return admission.NewPodDefaultValuesAdmissionReviewer(cm)
 }
