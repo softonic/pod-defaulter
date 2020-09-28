@@ -3,6 +3,7 @@ module github.com/softonic/pod-defaulter
 go 1.14
 
 require (
+	github.com/bmizerany/assert v0.0.0-20160611221934-b7ed37b82869
 	github.com/ghodss/yaml v1.0.0
 	github.com/imdario/mergo v0.3.9
 	github.com/mohae/deepcopy v0.0.0-20170929034955-c48cc78d4826
@@ -20,7 +21,6 @@ require (
 
 replace (
 	github.com/prometheus/client_golang => github.com/prometheus/client_golang v0.9.2
-
 	k8s.io/api => k8s.io/api v0.18.3
 	k8s.io/apiextensions-apiserver => k8s.io/apiextensions-apiserver v0.18.3
 	k8s.io/apimachinery => k8s.io/apimachinery v0.18.3

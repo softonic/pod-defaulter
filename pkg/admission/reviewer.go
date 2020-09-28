@@ -14,10 +14,10 @@ import (
 )
 
 type AdmissionReviewer struct {
-	defaultTemplate *v1.PodTemplate
+	defaultTemplate *v1.PodTemplateSpec
 }
 
-func NewPodDefaultValuesAdmissionReviewer(cm *v1.PodTemplate) *AdmissionReviewer {
+func NewPodDefaultValuesAdmissionReviewer(cm *v1.PodTemplateSpec) *AdmissionReviewer {
 	return &AdmissionReviewer{
 		defaultTemplate: cm,
 	}
@@ -98,13 +98,13 @@ func (r *AdmissionReviewer) getPod(admissionReview *v1beta1.AdmissionReview) (*v
 	return &pod, nil
 }
 
-func (r *AdmissionReviewer) defaultPodValues(pod *v1.Pod) interface{} {
-	klog.Infof("IN: %v", pod)
+func (r *AdmissionReviewer) defaultPodValues(pod *v1.Pod) *v1.Pod {
 	result := &v1.Pod{}
-	mergo.Merge(result, r.defaultTemplate, mergo.WithOverride)
-	klog.Infof("MERGE WITH: %v", r.defaultTemplate)
-	klog.Infof("MERGED (1): %v", result)
-	mergo.Merge(result, pod, mergo.WithOverride)
-	klog.Infof("OUT: %v", result)
+	mergo.Merge(result, pod)
+	mergo.Merge(&result.Spec, r.defaultTemplate.Spec)
+	mergo.Merge(&result.ObjectMeta, r.defaultTemplate.ObjectMeta)
+
+	//klog.Infof("Original POD: %v", pod)
+	//klog.Infof("Default Template: %v", r.defaultTemplate)
 	return result
 }

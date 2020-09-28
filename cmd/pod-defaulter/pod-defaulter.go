@@ -69,7 +69,7 @@ func main() {
 	if err != nil {
 		klog.Fatalf("Invalid config %s/%s : %v", namespace, cmName, err)
 	}
-	configPodTemplate := &v1.PodTemplate{}
+	configPodTemplate := &v1.PodTemplateSpec{}
 	err = yaml.Unmarshal([]byte(cm.Data["config"]), configPodTemplate)
 
 	if err != nil {
@@ -126,10 +126,10 @@ func run(params *params) {
 	klog.Fatalf("Could not start server: %v", srv.ListenAndServeTLS(params.certificate, params.privateKey))
 }
 
-func getHttpHandler(cm *v1.PodTemplate) *h.HttpHandler {
+func getHttpHandler(cm *v1.PodTemplateSpec) *h.HttpHandler {
 	return h.NewHttpHanlder(getPodDefaultValuesAdmissionReviewer(cm))
 }
 
-func getPodDefaultValuesAdmissionReviewer(cm *v1.PodTemplate) *admission.AdmissionReviewer {
+func getPodDefaultValuesAdmissionReviewer(cm *v1.PodTemplateSpec) *admission.AdmissionReviewer {
 	return admission.NewPodDefaultValuesAdmissionReviewer(cm)
 }
