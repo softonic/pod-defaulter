@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: pod-with-annotation
+  annotations:
+    cluster-autoscaler.kubernetes.io/safe-to-evict: "false"
+spec:
+  containers:
+    - image: debian:buster-slim
+      imagePullPolicy: IfNotPresent
+      name: sleeper
+      command:
+      - sleep
+      args:
+      - "infinity"

@@ -1,0 +1,30 @@
+---
+apiVersion: admissionregistration.k8s.io/v1beta1
+kind: MutatingWebhookConfiguration
+metadata:
+  name: {{ include "pod-defaulter.fullname" . }}
+  labels:
+    {{- include "pod-defaulter.labels" . | nindent 4 }}
+webhooks:
+  - name: {{ include "pod-defaulter.fullname" . }}.{{ .Release.Namespace }}.svc.cluster.local
+    objectSelector:
+      matchExpressions:
+        - key: app
+          operator: NotIn
+          values: ["pod-defaulter"]
+    clientConfig:
+      caBundle: {{ .Values.caBundle }}
+      service:
+        name: {{ include "pod-defaulter.fullname" . }}
+        namespace: {{ .Release.Namespace }}
+        path: "/mutate"
+        port: 443
+    rules:
+      - operations: ["CREATE"]
+        apiGroups: [""]
+        apiVersions: ["v1"]
+        resources: ["pods"]
+    sideEffects: {{ .Values.webhook.sideEffects }}
+    timeoutSeconds: {{ .Values.webhook.timeoutSeconds }}
+    reinvocationPolicy: {{ .Values.webhook.reinvocationPolicy }}
+    failurePolicy: {{ .Values.webhook.failurePolicy }}
