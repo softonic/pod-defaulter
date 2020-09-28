@@ -103,8 +103,5 @@ func (r *AdmissionReviewer) defaultPodValues(pod *v1.Pod) *v1.Pod {
 	mergo.Merge(result, pod)
 	mergo.Merge(&result.Spec, r.defaultTemplate.Spec)
 	mergo.Merge(&result.ObjectMeta, r.defaultTemplate.ObjectMeta)
-
-	//klog.Infof("Original POD: %v", pod)
-	//klog.Infof("Default Template: %v", r.defaultTemplate)
 	return result
 }

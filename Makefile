@@ -1,7 +1,7 @@
 BIN := pod-defaulter
 CRD_OPTIONS ?= "crd:trivialVersions=true"
 PKG := github.com/softonic/pod-defaulter
-VERSION ?= 0.0.11-dev
+VERSION ?= 0.1.0
 ARCH ?= amd64
 APP ?= pod-defaulter
 NAMESPACE ?= pod-defaulter

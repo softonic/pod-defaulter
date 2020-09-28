@@ -55,7 +55,6 @@ func main() {
 	if err != nil {
 		panic(err.Error())
 	}
-	// creates the clientset
 	clientset, err := kubernetes.NewForConfig(config)
 	if err != nil {
 		panic(err.Error())
@@ -75,7 +74,6 @@ func main() {
 	if err != nil {
 		klog.Fatalf("Invalid config %v", err)
 	}
-	klog.Infof("Unserialized config: %v", configPodTemplate)
 	handler = getHttpHandler(configPodTemplate)
 
 	if params.version {
