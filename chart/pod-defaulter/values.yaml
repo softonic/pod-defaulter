@@ -2,14 +2,15 @@
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
 
-config: {}
+# Yaml config
+config: null
 
 replicaCount: 1
 
 image:
   repository: softonic/pod-defaulter
   pullPolicy: IfNotPresent
-  tag: 0.1.2
+  tag: 0.1.0
 
 imagePullSecrets: []
 nameOverride: ""
