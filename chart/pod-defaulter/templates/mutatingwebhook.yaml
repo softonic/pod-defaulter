@@ -1,5 +1,5 @@
 ---
-apiVersion: admissionregistration.k8s.io/v1beta1
+apiVersion: admissionregistration.k8s.io/v1
 kind: MutatingWebhookConfiguration
 metadata:
   name: {{ include "pod-defaulter.fullname" . }}
@@ -28,3 +28,7 @@ webhooks:
     timeoutSeconds: {{ .Values.webhook.timeoutSeconds }}
     reinvocationPolicy: {{ .Values.webhook.reinvocationPolicy }}
     failurePolicy: {{ .Values.webhook.failurePolicy }}
+    admissionReviewVersions: 
+    {{- range .Values.webhook.admissionReviewVersions }}
+    - {{ . | quote }}
+    {{- end }}
