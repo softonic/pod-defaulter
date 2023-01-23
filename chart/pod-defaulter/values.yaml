@@ -33,6 +33,8 @@ certs:
   # Key key.pem
   key: ""
 
+secret:
+  enabled: true
 
 # LogLevel passed as an argument
 verbosity: 2
