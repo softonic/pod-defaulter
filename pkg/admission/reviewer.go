@@ -3,6 +3,7 @@ package admission
 import (
 	"encoding/json"
 	"errors"
+
 	"github.com/imdario/mergo"
 	"github.com/softonic/pod-defaulter/pkg/log"
 	"k8s.io/api/admission/v1beta1"
@@ -14,12 +15,12 @@ import (
 )
 
 type AdmissionReviewer struct {
-	defaultTemplate *v1.PodTemplateSpec
+	defaultTemplates map[string]*v1.PodTemplateSpec
 }
 
-func NewPodDefaultValuesAdmissionReviewer(cm *v1.PodTemplateSpec) *AdmissionReviewer {
+func NewPodDefaultValuesAdmissionReviewer(templates map[string]*v1.PodTemplateSpec) *AdmissionReviewer {
 	return &AdmissionReviewer{
-		defaultTemplate: cm,
+		defaultTemplates: templates,
 	}
 }
 
@@ -83,6 +84,7 @@ func (r *AdmissionReviewer) admissionAllowedResponse(pod *v1.Pod) *v1beta1.Admis
 	}
 }
 
+// receives the admissionReview and returns the pod inside the admissionReview
 func (r *AdmissionReviewer) getPod(admissionReview *v1beta1.AdmissionReview) (*v1.Pod, error) {
 	var pod v1.Pod
 	if admissionReview.Request == nil {
@@ -101,7 +103,17 @@ func (r *AdmissionReviewer) getPod(admissionReview *v1beta1.AdmissionReview) (*v
 func (r *AdmissionReviewer) defaultPodValues(pod *v1.Pod) *v1.Pod {
 	result := &v1.Pod{}
 	mergo.Merge(result, pod)
-	mergo.Merge(&result.Spec, r.defaultTemplate.Spec)
-	mergo.Merge(&result.ObjectMeta, r.defaultTemplate.ObjectMeta)
+
+	annotationType, ok := pod.Labels["annotation-type"]
+	if !ok {
+		annotationType = "default"
+	}
+
+	template, ok := r.defaultTemplates[annotationType]
+	if ok {
+		mergo.Merge(&result.Spec, template.Spec)
+		mergo.Merge(&result.ObjectMeta, template.ObjectMeta)
+	}
+
 	return result
 }
