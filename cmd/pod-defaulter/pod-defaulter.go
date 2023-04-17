@@ -5,20 +5,19 @@ import (
 	"crypto/tls"
 	"flag"
 	"fmt"
+	"net/http"
+	"os"
+
+	"github.com/ghodss/yaml"
 	"github.com/softonic/pod-defaulter/pkg/admission"
 	h "github.com/softonic/pod-defaulter/pkg/http"
 	"github.com/softonic/pod-defaulter/pkg/version"
-
-	//This supports JSON tags
-	"github.com/ghodss/yaml"
-
-	v1 "k8s.io/api/core/v1"
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/rest"
 	"k8s.io/klog"
-	"net/http"
-	"os"
+
+	v1 "k8s.io/api/core/v1"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
 type params struct {
@@ -53,11 +52,12 @@ func main() {
 	// Read ConfigMap
 	config, err := rest.InClusterConfig()
 	if err != nil {
-		panic(err.Error())
+		klog.Fatalf("Error getting InClusterConfig: %v", err)
 	}
 	clientset, err := kubernetes.NewForConfig(config)
 	if err != nil {
-		panic(err.Error())
+		//panic(err.Error())
+		klog.Fatalf("Error creating clientset: %v", err)
 	}
 
 	namespace := os.Getenv("POD_NAMESPACE")
@@ -68,7 +68,7 @@ func main() {
 	if err != nil {
 		klog.Fatalf("Invalid config %s/%s : %v", namespace, cmName, err)
 	}
-	configPodTemplate := &v1.PodTemplateSpec{}
+	configPodTemplate := map[string]*v1.PodTemplateSpec{}
 	err = yaml.Unmarshal([]byte(cm.Data["config"]), configPodTemplate)
 
 	if err != nil {
@@ -124,10 +124,10 @@ func run(params *params) {
 	klog.Fatalf("Could not start server: %v", srv.ListenAndServeTLS(params.certificate, params.privateKey))
 }
 
-func getHttpHandler(cm *v1.PodTemplateSpec) *h.HttpHandler {
-	return h.NewHttpHanlder(getPodDefaultValuesAdmissionReviewer(cm))
+func getHttpHandler(templates map[string]*v1.PodTemplateSpec) *h.HttpHandler {
+	return h.NewHttpHanlder(getPodDefaultValuesAdmissionReviewer(templates))
 }
 
-func getPodDefaultValuesAdmissionReviewer(cm *v1.PodTemplateSpec) *admission.AdmissionReviewer {
-	return admission.NewPodDefaultValuesAdmissionReviewer(cm)
+func getPodDefaultValuesAdmissionReviewer(templates map[string]*v1.PodTemplateSpec) *admission.AdmissionReviewer {
+	return admission.NewPodDefaultValuesAdmissionReviewer(templates)
 }
